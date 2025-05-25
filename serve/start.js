@@ -1,6 +1,3 @@
-// 设置环境变量并启动服务器
-import { spawn } from 'child_process';
-
 // 设置环境变量
 process.env.PORT = '3000';
 process.env.USE_MOCK_DATA = 'false';

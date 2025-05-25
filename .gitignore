@@ -5,9 +5,6 @@ node_modules
 .env
 .env.local
 
-# API密钥文件
-serve/start.js
-
 # 日志文件
 *.log
 
