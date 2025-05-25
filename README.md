@@ -35,28 +35,14 @@ npm install
 
 3. 配置API密钥
 
-在serve目录中创建start.js文件并添加你的DeepSeek API密钥：
-```javascript
-// 设置环境变量并启动服务器
-import { spawn } from 'child_process';
-
-// 设置环境变量
-process.env.PORT = '3000';
-process.env.USE_MOCK_DATA = 'false';
-process.env.DEEPSEEK_API_KEY = '你的DeepSeek API密钥';
-
-console.log('启动思维导图AI服务器...');
-console.log('环境变量设置:');
-console.log('- PORT:', process.env.PORT);
-console.log('- DEEPSEEK_API_KEY:', '******' + process.env.DEEPSEEK_API_KEY.slice(-6));
-console.log('- 使用真实AI接口生成思维导图');
-
-// 启动服务器
-import('./index.js').catch(err => {
-  console.error('启动服务器时出错:', err);
-  process.exit(1);
-});
+在serve目录中创建`.env`文件并添加你的DeepSeek API密钥：
 ```
+PORT=3000
+USE_MOCK_DATA=false
+DEEPSEEK_API_KEY=你的DeepSeek API密钥
+```
+
+项目中已包含`.env.example`文件作为模板。
 
 4. 启动服务
 ```bash
