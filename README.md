@@ -38,7 +38,6 @@ npm install
 在serve目录中创建`.env`文件并添加你的DeepSeek API密钥：
 ```
 PORT=3000
-USE_MOCK_DATA=false
 DEEPSEEK_API_KEY=你的DeepSeek API密钥
 ```
 
