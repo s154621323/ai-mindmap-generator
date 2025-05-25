@@ -6,11 +6,6 @@ import { mindMapAgent } from './agents/mindMapAgent.js';
 // 加载环境变量
 dotenv.config();
 
-// 设置DeepSeek API密钥(如果环境变量中不存在)
-if (!process.env.DEEPSEEK_API_KEY) {
-  process.env.DEEPSEEK_API_KEY = 'sk-8a0ac95630594ea5ba13f72b1c50c124';
-}
-
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -58,19 +53,6 @@ app.post('/api/generate-mindmap', async (req, res) => {
     console.error('API调用出错:', error);
     res.status(500).json({ error: '服务器内部错误' });
   }
-});
-
-// 健康检查接口
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-// 简单的前端配置信息API
-app.get('/api/config', (req, res) => {
-  res.json({
-    hasApiKey: !!process.env.DEEPSEEK_API_KEY,
-    modelProvider: 'deepseek'
-  });
 });
 
 // 启动服务器

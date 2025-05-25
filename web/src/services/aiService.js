@@ -84,31 +84,6 @@ export async function streamGenerateMindMap (topic, onNewNode) {
   }
 }
 
-/**
- * 获取服务端配置信息
- * @returns {Promise<Object>} 配置信息
- */
-export async function getServerConfig () {
-  try {
-    const response = await fetch(`${API_URL}/config`);
-
-    if (!response.ok) {
-      throw new Error(`API响应错误: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('获取服务端配置出错:', error);
-    // 返回默认配置
-    return {
-      useMockData: true,
-      hasApiKey: false,
-      agentType: 'basic'
-    };
-  }
-}
-
 export default {
   streamGenerateMindMap,
-  getServerConfig
 }; 
