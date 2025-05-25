@@ -1,0 +1,21 @@
+{
+  "name": "mind-map-ai-server",
+  "version": "1.0.0",
+  "description": "使用Mastra和DeepSeek实现的AI思维导图生成器服务端",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "node --watch start.js"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "latest",
+    "@ai-sdk/deepseek": "latest",
+    "@mastra/core": "latest",
+    "@mastra/client-js": "latest",
+    "@mastra/mcp": "latest",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
+  }
+} 
