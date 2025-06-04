@@ -60,6 +60,8 @@ class MindMapAgent {
       const rootNodeId = `root-${Date.now()}`;
       console.log(`创建根节点: ${rootNodeId}, 文本: "${topic}"`);
 
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       nodeStream.emit('data', {
         id: rootNodeId,
         text: topic,
@@ -75,12 +77,8 @@ class MindMapAgent {
 请生成5-7个主要方面或类别，每个都应该与主题密切相关。
 必须返回JSON格式，使用以下结构:
 [
-  {
-    "topic": "主要方面1"
-  },
-  {
-    "topic": "主要方面2"
-  },
+  "主要方面1",
+  "主要方面2",
   ...
 ]
 
@@ -96,9 +94,7 @@ class MindMapAgent {
         mainTopics = JSON.parse(mainTopicsResponse.text);
         console.log('成功解析JSON主题列表');
       } catch (e) {
-        console.log('JSON解析失败，尝试提取结构化数据');
-        // 如果无法解析JSON，使用extractStructuredData方法提取
-        mainTopics = this.extractStructuredData(mainTopicsResponse.text);
+        console.log('JSON解析失败');
       }
 
       // 确保我们有数组格式
@@ -195,59 +191,6 @@ class MindMapAgent {
     } catch (error) {
       console.error('生成思维导图内容时出错:', error);
       nodeStream.emit('error', error);
-    }
-  }
-
-  /**
-   * 从非JSON响应中提取结构化数据
-   * @param {string} text LLM响应文本
-   * @returns {Array} 提取的结构化数据
-   * @private
-   */
-  extractStructuredData (text) {
-    // 尝试从文本中提取结构化数据
-    try {
-      // 查找JSON块
-      const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-      if (jsonMatch && jsonMatch[1]) {
-        return JSON.parse(jsonMatch[1].trim());
-      }
-
-      // 尝试在整个文本中查找JSON对象或数组
-      const jsonRegex = /(\[[\s\S]*\]|\{[\s\S]*\})/;
-      const directJsonMatch = text.match(jsonRegex);
-      if (directJsonMatch) {
-        return JSON.parse(directJsonMatch[1].trim());
-      }
-
-      // 尝试查找列表
-      const items = [];
-      const lines = text.split('\n');
-
-      for (const line of lines) {
-        // 匹配列表项 (例如 "- 项目1" 或 "1. 项目1")
-        const match = line.match(/^\s*(?:[-*+]|\d+\.)\s+(.*?)$/);
-        if (match && match[1]) {
-          items.push(match[1].trim());
-        }
-      }
-
-      if (items.length > 0) {
-        // 如果在提取主题，则格式化为对象数组
-        if (text.toLowerCase().includes('主题') || text.toLowerCase().includes('方面')) {
-          return items.map(item => ({ topic: item }));
-        }
-        // 否则返回字符串数组
-        return items;
-      }
-
-      // 如果无法提取结构化数据，返回空数组
-      console.warn('无法从响应中提取结构化数据');
-      return [];
-
-    } catch (e) {
-      console.error('提取结构化数据失败:', e);
-      return [];
     }
   }
 }
