@@ -65,7 +65,6 @@ class MindMapAgent {
       nodeStream.emit('data', {
         id: rootNodeId,
         text: topic,
-        isMain: true,
         parentId: null
       });
 
@@ -122,7 +121,6 @@ class MindMapAgent {
         nodeStream.emit('data', {
           id: mainTopicId,
           text: mainTopicText,
-          isMain: true,
           parentId: rootNodeId // 所有主题都连接到根节点
         });
 
@@ -176,7 +174,6 @@ class MindMapAgent {
           nodeStream.emit('data', {
             id: subtopicId,
             text: subtopic,
-            isMain: false,
             parentId: mainTopicId // 使用主题ID作为父节点ID
           });
 

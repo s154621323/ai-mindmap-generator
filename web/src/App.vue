@@ -18,9 +18,6 @@ let currentData = {
   children: []
 };
 
-// 生成UID的计数器
-let uidCounter = 2;
-
 // 初始化思维导图
 onMounted(() => {
   nextTick(() => {
@@ -29,7 +26,7 @@ onMounted(() => {
 });
 
 // 初始化思维导图方法
-function initMindMap() {
+function initMindMap () {
   const container = document.getElementById('mindMapContainer');
   if (!container) return;
 
@@ -49,7 +46,7 @@ function initMindMap() {
     const lastCreate = list.filter((item) => {
       return item.action === 'create';
     })[0];
-    
+
     if (lastCreate) {
       const uid = lastCreate.data.data.uid;
       const node = mindMapInstance.value.renderer.findNodeByUid(uid);
@@ -74,12 +71,12 @@ function initMindMap() {
 }
 
 // 开始生成思维导图
-async function startGeneration() {
+async function startGeneration () {
   if (!promptInput.value.trim() || isGenerating.value) return;
-  
+
   isGenerating.value = true;
   statusMessage.value = '正在生成思维导图...';
-  
+
   // 重置思维导图
   currentData = {
     data: {
@@ -88,16 +85,15 @@ async function startGeneration() {
     },
     children: []
   };
-  uidCounter = 2;
-  
+
   // 更新思维导图
   if (mindMapInstance.value) {
     mindMapInstance.value.setData(currentData);
   }
-  
+
   // 在生成过程中禁止用户操作
   disableUserInteraction();
-  
+
   try {
     // 使用AI服务流式生成思维导图
     await streamGenerateMindMap(promptInput.value, handleNewNode);
@@ -113,82 +109,33 @@ async function startGeneration() {
 }
 
 // 处理新节点生成
-function handleNewNode(nodeData) {
+function handleNewNode (nodeData) {
   return new Promise((resolve) => {
     console.log('收到新节点数据:', nodeData);
-    
+
     // 使用服务端提供的ID或生成新ID
-    const uid = nodeData.id || String(uidCounter++);
-    
-    if (nodeData.isMain) {
-      // 创建主题节点
-      const newNode = {
-        data: {
-          text: nodeData.text,
-          uid
-        },
-        children: []
-      };
-      
-      // 将主题节点添加到正确的父节点
-      if (nodeData.parentId) {
-        // 如果有指定父节点（根节点）
-        if (nodeData.parentId === currentData.data.uid) {
-          // 添加到根节点
-          currentData.children.push(newNode);
-        } else {
-          // 查找父节点（可能是其他主节点）
-          const findAndAddToParent = (nodes, parentId) => {
-            for (const node of nodes) {
-              if (node.data.uid === parentId) {
-                node.children.push(newNode);
-                return true;
-              }
-              if (node.children && node.children.length > 0) {
-                if (findAndAddToParent(node.children, parentId)) {
-                  return true;
-                }
-              }
-            }
-            return false;
-          };
-          
-          // 在整个树中查找父节点
-          const found = findAndAddToParent([currentData], nodeData.parentId);
-          if (!found) {
-            console.error('未找到父节点:', nodeData.parentId);
-            // 添加到根节点作为后备方案
-            currentData.children.push(newNode);
-          }
-        }
-      } else {
-        // 如果没有指定父节点，添加到根节点
+    const uid = nodeData.id;
+    // 创建主题节点
+    const newNode = {
+      data: {
+        text: nodeData.text,
+        uid
+      },
+      children: []
+    };
+
+    // 将主题节点添加到正确的父节点
+    if (nodeData.parentId) {
+      // 如果有指定父节点（根节点）
+      if (nodeData.parentId === currentData.data.uid) {
+        // 添加到根节点
         currentData.children.push(newNode);
-      }
-      
-      // 更新思维导图
-      mindMapInstance.value.updateData(currentData);
-      console.log('添加主题节点:', uid, '父节点:', nodeData.parentId || '根节点');
-      
-      // 返回节点ID用于后续添加子节点
-      resolve(uid);
-    } else {
-      // 创建子节点
-      const subNode = {
-        data: {
-          text: nodeData.text,
-          uid
-        },
-        children: []
-      };
-      
-      // 查找父节点
-      if (nodeData.parentId) {
-        // 递归查找父节点的函数
+      } else {
+        // 查找父节点（可能是其他主节点）
         const findAndAddToParent = (nodes, parentId) => {
           for (const node of nodes) {
             if (node.data.uid === parentId) {
-              node.children.push(subNode);
+              node.children.push(newNode);
               return true;
             }
             if (node.children && node.children.length > 0) {
@@ -199,31 +146,31 @@ function handleNewNode(nodeData) {
           }
           return false;
         };
-        
+
         // 在整个树中查找父节点
         const found = findAndAddToParent([currentData], nodeData.parentId);
         if (!found) {
           console.error('未找到父节点:', nodeData.parentId);
           // 添加到根节点作为后备方案
-          currentData.children.push(subNode);
-        } else {
-          console.log('添加子节点:', uid, '到父节点:', nodeData.parentId);
+          currentData.children.push(newNode);
         }
-      } else {
-        // 如果没有指定父节点，添加到根节点
-        console.log('子节点没有父节点ID，添加到根节点');
-        currentData.children.push(subNode);
       }
-      
-      // 更新思维导图
-      mindMapInstance.value.updateData(currentData);
-      resolve(uid);
+    } else {
+      // 如果没有指定父节点，添加到根节点
+      currentData.children.push(newNode);
     }
+
+    // 更新思维导图
+    mindMapInstance.value.updateData(currentData);
+    console.log('添加主题节点:', uid, '父节点:', nodeData.parentId || '根节点');
+
+    // 返回节点ID用于后续添加子节点
+    resolve(uid);
   });
 }
 
 // 在AI生成过程中禁止用户操作
-function disableUserInteraction() {
+function disableUserInteraction () {
   if (mindMapInstance.value) {
     mindMapInstance.value.updateConfig({
       enableFreeDrag: false,
@@ -234,7 +181,7 @@ function disableUserInteraction() {
 }
 
 // 恢复用户操作
-function enableUserInteraction() {
+function enableUserInteraction () {
   if (mindMapInstance.value) {
     mindMapInstance.value.updateConfig({
       enableFreeDrag: true,
@@ -250,24 +197,16 @@ function enableUserInteraction() {
     <div class="control-panel">
       <h2>AI思维导图生成器</h2>
       <div class="input-group">
-        <input 
-          type="text" 
-          v-model="promptInput" 
-          placeholder="输入一个主题，AI将为您生成思维导图"
-          :disabled="isGenerating"
-        >
-        <button 
-          @click="startGeneration" 
-          :disabled="isGenerating || !promptInput.trim()"
-        >
+        <input type="text" v-model="promptInput" placeholder="输入一个主题，AI将为您生成思维导图" :disabled="isGenerating">
+        <button @click="startGeneration" :disabled="isGenerating || !promptInput.trim()">
           {{ isGenerating ? '生成中...' : '生成' }}
         </button>
       </div>
       <div class="status">{{ statusMessage }}</div>
     </div>
-    
+
     <div id="mindMapContainer"></div>
-    
+
     <div class="loading-overlay" :class="{ hidden: !isGenerating }">
       <div class="spinner"></div>
       <div class="loading-text">AI正在思考...</div>
