@@ -77,10 +77,10 @@ async function startGeneration () {
   isGenerating.value = true;
   statusMessage.value = '正在生成思维导图...';
 
-  // 重置思维导图
+  // 重置思维导图为初始状态
   currentData = {
     data: {
-      text: promptInput.value,
+      text: '加载中...',
       uid: '1'
     },
     children: []
@@ -113,8 +113,21 @@ function handleNewNode (nodeData) {
   return new Promise((resolve) => {
     console.log('收到新节点数据:', nodeData);
 
-    // 使用服务端提供的ID或生成新ID
+    // 使用服务端提供的ID
     const uid = nodeData.id;
+    
+    // 如果是根节点，则更新当前根节点
+    if (nodeData.isMain) {
+      currentData.data.text = nodeData.text;
+      currentData.data.uid = uid;
+      console.log('更新根节点:', uid, nodeData.text);
+      
+      // 更新思维导图
+      mindMapInstance.value.updateData(currentData);
+      resolve(uid);
+      return;
+    }
+    
     // 创建主题节点
     const newNode = {
       data: {
@@ -131,7 +144,7 @@ function handleNewNode (nodeData) {
         // 添加到根节点
         currentData.children.push(newNode);
       } else {
-        // 查找父节点（可能是其他主节点）
+        // 查找父节点
         const findAndAddToParent = (nodes, parentId) => {
           for (const node of nodes) {
             if (node.data.uid === parentId) {
@@ -197,7 +210,13 @@ function enableUserInteraction () {
     <div class="control-panel">
       <h2>AI思维导图生成器</h2>
       <div class="input-group">
-        <input type="text" v-model="promptInput" placeholder="输入一个主题，AI将为您生成思维导图" :disabled="isGenerating">
+        <input 
+          type="text" 
+          v-model="promptInput" 
+          placeholder="输入一个主题，AI将为您生成思维导图" 
+          :disabled="isGenerating"
+          @keyup.enter="startGeneration"
+        >
         <button @click="startGeneration" :disabled="isGenerating || !promptInput.trim()">
           {{ isGenerating ? '生成中...' : '生成' }}
         </button>

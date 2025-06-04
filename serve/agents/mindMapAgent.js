@@ -53,9 +53,6 @@ class MindMapAgent {
     try {
       console.log('开始生成思维导图，主题:', topic);
 
-      // 创建一个映射表来跟踪节点ID
-      const nodeIds = {};
-
       // 首先发送根节点
       const rootNodeId = `root-${Date.now()}`;
       console.log(`创建根节点: ${rootNodeId}, 文本: "${topic}"`);
@@ -65,6 +62,7 @@ class MindMapAgent {
       nodeStream.emit('data', {
         id: rootNodeId,
         text: topic,
+        isMain: true,
         parentId: null
       });
 
@@ -111,9 +109,6 @@ class MindMapAgent {
         // 确保主题对象格式正确
         const mainTopicText = typeof mainTopic === 'string' ? mainTopic : mainTopic.topic;
         const mainTopicId = `main-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
-        // 保存主题ID
-        nodeIds[mainTopicText] = mainTopicId;
 
         console.log(`创建主题节点: ${mainTopicId}, 文本: "${mainTopicText}", 父节点: ${rootNodeId}`);
 
