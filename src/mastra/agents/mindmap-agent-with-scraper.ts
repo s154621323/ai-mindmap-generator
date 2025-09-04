@@ -1,8 +1,8 @@
-import { deepseek } from '@ai-sdk/deepseek';
-import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
-import { webScraperAdvancedTool } from '../tools/web-scraper-tool-advanced';
+import { deepseek } from '@ai-sdk/deepseek'
+import { Agent } from '@mastra/core/agent'
+import { Memory } from '@mastra/memory'
+import { LibSQLStore } from '@mastra/libsql'
+import { webScraperTool } from '../tools/web-scraper-tool'
 
 export const mindmapAgentWithScraper = new Agent({
   name: 'Mindmap Agent with Web Scraper',
@@ -28,7 +28,7 @@ export const mindmapAgentWithScraper = new Agent({
        - 支持中英文内容处理
        - 根据内容语言调整处理策略
 
-    当用户提供网页URL时，使用 webScraperAdvancedTool 抓取内容，然后分析并生成思维导图结构。
+    当用户提供网页URL时，使用 webScraperTool 抓取内容，然后分析并生成思维导图结构。
 
     响应格式：
     - 提供内容摘要
@@ -38,11 +38,11 @@ export const mindmapAgentWithScraper = new Agent({
   `,
   model: deepseek('deepseek-chat'),
   tools: {
-    webScraperAdvancedTool
+    webScraperTool,
   },
   memory: new Memory({
     storage: new LibSQLStore({
       url: 'file:../mastra.db',
     }),
   }),
-});
+})
