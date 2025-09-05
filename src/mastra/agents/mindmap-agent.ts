@@ -2,7 +2,7 @@ import { deepseek } from '@ai-sdk/deepseek'
 import { Agent } from '@mastra/core/agent'
 import { Memory } from '@mastra/memory'
 import { LibSQLStore } from '@mastra/libsql'
-import { mindmapTool, webScraperTool } from '../tools'
+import { webScraperTool, searchTool } from '../tools'
 
 export const mindmapAgent = new Agent({
   name: 'Mindmap Agent',
@@ -15,7 +15,7 @@ export const mindmapAgent = new Agent({
     - 根据内容类型调整导图结构
 `,
   model: deepseek('deepseek-chat'),
-  tools: { mindmapTool, webScraperTool },
+  tools: { webScraperTool, searchTool },
   memory: new Memory({
     storage: new LibSQLStore({
       url: 'file:../mastra.db', // path is relative to the .mastra/output directory
